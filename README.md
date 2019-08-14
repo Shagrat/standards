@@ -1,55 +1,87 @@
-# Platform Of Trust Standards repository
-This guide will help you to understand data models used in the Platform of Trust. Data integrator's most likely will need to understand this part thoroughly to be able to build translation rules between source data and platform of trust with Translator component or integration platform tools. 
+## Structure and definitions
 
-## Purpose and benefits
-Unification of data models enables easy integration without need to build connectors for each specific case. 
-Platform of Trust data models are available in machine readable [JSON-LD](https://json-ld.org/) encoding and utilizes [RDF](https://www.w3.org/RDF/) standard. Other encodings might be available at later stages. Data model can be easily extended by third parties.
+The Standard is split into 3 sections, each having their own directory in the repository.
 
-## Data example
-Each data file of identity should reference context file. All properties excluding `name` should be nested under `data` object. Here is example of Building
+There are 3 types of JSON-LD files:
+- **Context file** - file describing JSON object structure and referencing Vocabulary and Class definition files for details
+- **Vocabulary file** - contains standard definition of properties, class and its subclasses in RDF standard
+- **Class definition file** - extention required to specify fields additional properties like mandatory, types, supported values e.t.c. 
 
-```JSON
+## Contexts
+
+Contexts are laid out in a versioned tree structure. Each specific definition is in a `.jsonld` -file. For every directory under the `contexts` folder, the PARENT folder is expected to have `<folder>.jsonld` that defines the base class for that directory's contents. E.g. if `Context/Identity/Thing/FlowerPot.jsonld` exists, then `Context/Identity/Thing.jsonld` must exist as well.
+
+Naming standard is:
+
+ - URL friendly (no characters that require % signs in the URL or similar)
+ - Human readable
+ - U.S. English
+ - Pascal case
+
+## URL structure
+
+Context file is available at URL containing base URL + `version` + `/Context/` + class name:
+https://standards.oftrust.net/v1/Context/Identity/Digital/Data/DataProduct/
+https://standards.oftrust.net/v1/Context/Identity/Thing/Device/Sensor/TemperatureSensor/
+
+Vocabulary files URLs have same structure as Context files, but Vocabulary folder should be used instead:
+https://standards.oftrust.net/v1/Vocabulary/Identity/Digital/Data/DataProduct
+https://standards.oftrust.net/v1/Vocabulary/Identity/Thing/Device/Sensor/TemperatureSensor
+
+Class descriptions files URLs have same structure as Context files, but ClassDefinition folder should be used instead
+https://standards.oftrust.net/v1/ClassDefinitions/Identity/Digital/Data/DataProduct
+https://standards.oftrust.net/v1/ClassDefinitions/Identity/Thing/Device/Sensor/TemperatureSensor
+
+Web server is configured to return `JSON-LD` files by appending `.jsonld` to requests. In case of context file it will also remove trailing slash before appending `.jsonld` extention. In repository respective files can be found in folders following URL logic
+
+## Versioning
+
+Versioning use semantic versions for names, except truncated to significant bits. The patch version is not used for minor changes of e.g. titles and descriptions. Any backwards incompatible change (removal/rename of fields, restructuring) is done in a new major version (e.g. `v2`), and adding fields result in a new minor version (e.g. `v1.1`) as adding new required fields could break something. 
+
+## Viewer
+
+The raw JSON-LD will be hosted by default, however once the standards viewer has been implemented the server shall be configured so that instead of the raw JSON-LD the server will return a React application if the `Accept` header contains `text/html`. The React application will be built so it understands the same URL structure and will be able to visualize the standards.
+
+## Hosting
+
+Data Standards should be hosted at
+- https://standards.oftrust.net/ - Stable, ready for production use
+- https://standards-lab.oftrust.net/ - Work in progress, trying out new ideas, things that are not agreed on as useful and stable standards yet.
+
+## How to navigate
+
+To navigate through the context tree you should get root context file first. For example:
+https://standards.oftrust.net/v1/Vocabulary/
+
+In that file you'll have JSON-LD classes like
+```json
 {
-    "@context": "https://standards.oftrust.net/contexts/identity-building.jsonld",
-    "@id": "<identity id>",
-    "@type": "Building",
-    "name": "Houmenta",
-    "data": {
-        "lifeCycleInaugurationMomentYear": 1943,
-		"lifecycleInspectionYear": 2017,
-        "physicalAreaSquareMeterNet": 5200,
-        "physicalVolumeCubic": 40000
-    }
+    "@id": "dli:Identity"
 }
 ```
 
-In this example `@context` defines reference to Context file where definition of JSON sctructure is located. In this definition there is a reference to Ontology file with term definitions. [JSON-LD playground](https://json-ld.org/playground/) can be used to extract machine readable definition of data. Just copypaste above example there to receive terms links.
+Take `@id` of the Class and append it to URL. Use next URLs:
+https://standards.oftrust.net/v1/Context/Identity/ - to get Context file (or React app)
+https://standards.oftrust.net/v1/ClassDefinitions/Identity - to get class definition
+https://standards.oftrust.net/v1/Vocabulary/Identity - to get Vocabulary file
 
-Please reference sections below to get more information about Ontology and Context terms
+In each Context file there is a list of subclasses so it is possible to navigate further
 
-## Data model
-Data model include real life objects and their properties.
-We have a set of classes, arranged in a multiple inheritance hierarchy where each class may be a sub-class of multiple classes.
-We also have a set of properties:
-* each property may have one or more classes as its domains. The property may be used for instances of any of these classes.
-* each property may have one or more classes as its ranges. The value(s) of the property should be instances of at least one of these classes.
-* can be arranged in hierarchy same as classes.
+# Data examples
 
-The decision to allow multiple domains and ranges was purely pragmatic. While the computational properties of systems with a single domain and range are easier to understand, in practice, this forces the creation of a lot of artifical classes, which are there purely to act as the domain/range of some properties.
+Next data examples work correctly based on [JSON-LD Playground](https://json-ld.org/playground/) testing
 
-All classes and properties can be investigated in [Data Model structure documentation](https://standards.oftrust.net/).
+## Context
 
-## Data model source code
-Data model source code is organized in following way:
-* Core ontology file is named `pot.jsonld` and is located under `ontologies` folder. It contains all classes and properties used in ontology
-* Context files are located in `contexts` folder and contains one file per identity. This file describes JSON document sctructure of specific identity.
-* Vocab files are located in `vocabularies` folder and describes properties metadata like labels on forms and requirements
-
-Core ontology should be understood as core terms vocabulary including all classes and properties. Context files define JSON document strcuture and are connected to ontology. Vocab files should be used to build UI and other application level represetations of data structure and also to understand some technical level properties of attributes.
-
-All JSON-LD source files are available under [GitHub Repository](https://github.com/PlatformOfTrust/standards).
-
-## Links and additional information
-All classes and properties can be investigated in [Data Model structure documentation](https://standards.oftrust.net/).
-
-All JSON-LD source files are available under [GitHub Repository](https://github.com/PlatformOfTrust/standards).
+```json
+{
+  "@context" : "https://standards.oftrust.net/v1/Context/Identity/Thing/Device/Sensor/TemperatureSensor/",
+  "@id" : "123e4567-e89b-12d3-a456-426655440000",
+  "name" : "Test sensor",
+  "data" : {
+    "physicalPower" : "40 W",
+    "physicalWeight" : "100 gr",
+    "physicalColorName" : "white"
+  }
+}
+```
