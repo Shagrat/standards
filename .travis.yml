@@ -17,6 +17,6 @@ deploy:
   local-dir: artifacts
   github-token: $GITHUB_TOKEN
   target-branch: gh-pages
-  repo: PlatformOfTrust/standards
+  repo: RomanSavran/standards
   on:
     branch: master

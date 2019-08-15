@@ -12,6 +12,7 @@ readonly ARTIFACTS="${ARTIFACTS_ROOT}/${STANDARD_VERSION}"
 readonly THEME="darkly"
 
 cd "${WORKDIR}"
+python ../githubify.py "${STANDARD_VERSION}"
 
 mkdir "${OUT_FOLDER}"
 mkdir "${ARTIFACTS}"
