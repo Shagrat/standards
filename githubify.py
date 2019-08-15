@@ -8,7 +8,7 @@ redirect_to: "$redirect_to"
 ---
 ''')
 
-if _name_ == "__main__": 
+if __name__ == "__main__": 
     for (root,dirs,files) in os.walk(".", topdown=True):
         dir_name = os.path.split(root)[-1]
         if dir_name != '' and dir_name not in EXCLUDE_INDEXES:
